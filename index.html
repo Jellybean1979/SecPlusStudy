@@ -851,23 +851,37 @@ const studyData = [
   <tr><td><strong>Hashing</strong></td><td>One-way, no key</td><td>Fast</td><td>Integrity, password storage</td><td>MD5 (weak), SHA-1 (weak), SHA-256, SHA-3</td></tr>
 </table></div>
 <div class="tip-box"><strong>🎯 Hybrid encryption:</strong> Asymmetric is used to <em>exchange the symmetric key</em>, then symmetric handles bulk data. This is how TLS/HTTPS works.</div>
-<p><strong>Key concepts:</strong><br>
-• <em>Steganography</em> — Hiding data inside other data (image, audio)<br>
-• <em>Key stretching</em> — Strengthening weak passwords using bcrypt, PBKDF2, Argon2<br>
-• <em>Salting</em> — Adding random data before hashing to prevent rainbow table attacks<br>
-• <em>Obfuscation</em> — Making code/data hard to understand (NOT secure by itself)
-</p>
+<p><strong>Additional cryptographic concepts:</strong></p>
+<div class="term-grid">
+  <div class="term"><div class="t">Key Stretching</div><div class="d">Strengthens a weak/short password by running it through many hash iterations (bcrypt, PBKDF2, Argon2). Makes brute-forcing computationally expensive.</div></div>
+  <div class="term"><div class="t">Salting</div><div class="d">Adds a unique random value to each password before hashing. Prevents rainbow table attacks — even identical passwords produce different hashes.</div></div>
+  <div class="term"><div class="t">Key Rotation</div><div class="d">Regularly replacing cryptographic keys on a schedule, even without a known compromise. Limits the amount of data exposed if a key is ever stolen. Reduces blast radius.</div></div>
+  <div class="term"><div class="t">Cryptographic Agility</div><div class="d">Designing systems to swap out algorithms quickly without rebuilding everything. Critical as quantum computing threatens RSA/ECC. Example: migrating from SHA-1 to SHA-256 seamlessly.</div></div>
+  <div class="term"><div class="t">Perfect Forward Secrecy (PFS)</div><div class="d">Generates a unique temporary session key for every session. If the long-term private key is later compromised, past recorded sessions CANNOT be decrypted. TLS 1.3 enforces PFS by default.</div></div>
+  <div class="term"><div class="t">Key Escrow</div><div class="d">A copy of encryption keys held by a trusted third party (often government). Allows lawful access but creates a high-value target if the escrow is compromised.</div></div>
+  <div class="term"><div class="t">Steganography</div><div class="d">Hiding data inside other files (images, audio, video) without altering the appearance. Not encryption — the data is just concealed. Steganalysis is used to detect it.</div></div>
+  <div class="term"><div class="t">Obfuscation</div><div class="d">Making code or data difficult to understand. NOT a security control by itself — security through obscurity is not acceptable as a primary defense.</div></div>
+</div>
+<div class="tip-box"><strong>🎯 EXAM TIP — Know these apart:</strong> <em>Key rotation</em> = replace keys on schedule (limits exposure). <em>PFS</em> = new key per session (protects past sessions). <em>Cryptographic agility</em> = ability to switch algorithms easily. <em>Key stretching</em> = slow down brute-force against weak passwords.</div>
 </div>
 
 <div class="content-block">
 <h3>PKI — Public Key Infrastructure</h3>
 <div class="term-grid">
-  <div class="term"><div class="t">CA (Certificate Authority)</div><div class="d">Trusted entity that issues and signs digital certificates.</div></div>
-  <div class="term"><div class="t">Root CA</div><div class="d">Top of the trust chain. Kept offline (air-gapped). Signs Intermediate CAs.</div></div>
-  <div class="term"><div class="t">Intermediate CA</div><div class="d">Signs end-entity certificates. Compromise = revoke without touching Root CA.</div></div>
-  <div class="term"><div class="t">CRL</div><div class="d">Certificate Revocation List — offline list of revoked certs.</div></div>
-  <div class="term"><div class="t">OCSP</div><div class="d">Online Certificate Status Protocol — real-time revocation check.</div></div>
-  <div class="term"><div class="t">CSR</div><div class="d">Certificate Signing Request — sent to CA to request a cert.</div></div>
+  <div class="term"><div class="t">CA (Certificate Authority)</div><div class="d">Issues and <strong>digitally signs</strong> certificates. The entity that actually creates and vouches for the certificate. Can be public (DigiCert, Let's Encrypt) or private (internal enterprise CA).</div></div>
+  <div class="term"><div class="t">RA (Registration Authority)</div><div class="d">Handles <strong>identity verification</strong> on behalf of the CA before a certificate is issued. Verifies the requester is who they claim to be, then forwards the approved request to the CA. Offloads admin work from the CA — but the RA cannot issue or sign certificates itself.</div></div>
+  <div class="term"><div class="t">Root CA</div><div class="d">Top of the trust chain. Kept offline (air-gapped). Signs Intermediate CAs only. Never issues end-entity certs directly.</div></div>
+  <div class="term"><div class="t">Intermediate CA</div><div class="d">Signs end-entity certificates on behalf of the Root CA. If compromised, it can be revoked without invalidating the entire PKI hierarchy.</div></div>
+  <div class="term"><div class="t">CSR (Certificate Signing Request)</div><div class="d">A request submitted by an applicant to the CA/RA containing their public key and identity info. The CA signs it to produce the final certificate.</div></div>
+  <div class="term"><div class="t">CRL (Certificate Revocation List)</div><div class="d">An offline, periodically published list of revoked certificates. Checked by clients to verify a cert is still valid. Can be stale between updates.</div></div>
+  <div class="term"><div class="t">OCSP (Online Cert Status Protocol)</div><div class="d">Real-time revocation check — client queries the CA to verify a specific certificate's status on demand. More current than CRL.</div></div>
+  <div class="term"><div class="t">Certificate Pinning</div><div class="d">Application hard-codes an expected certificate or public key. Rejects any other cert even if signed by a trusted CA. Prevents MITM using fraudulent but technically valid certs.</div></div>
+</div>
+<div class="alert-box"><strong>⚠ CA vs RA — The Classic Exam Trap:</strong><br><br>
+The <strong>CA issues and signs</strong> the certificate. The <strong>RA verifies identity</strong> before the CA will issue it.<br><br>
+If a question asks who is responsible for <em>issuing or signing</em> certificates → <strong>CA</strong>.<br>
+If a question asks who <em>verifies the requester's identity</em> before issuance → <strong>RA</strong>.<br><br>
+Think of it like a notary (RA) who checks your ID, then passes the paperwork to the official (CA) who stamps and signs it.
 </div>
 <p>A <strong>digital certificate</strong> (X.509) binds a public key to an identity. When you ENCRYPT with someone's public key, only they can decrypt with their private key. When you SIGN with your private key, anyone can verify with your public key.</p>
 </div>
@@ -942,7 +956,8 @@ const studyData = [
 <div class="term-grid">
   <div class="term"><div class="t">DoS / DDoS</div><div class="d">Flood target with traffic to make it unavailable. DDoS uses multiple sources (botnet).</div></div>
   <div class="term"><div class="t">MITM (Man-in-the-Middle)</div><div class="d">Intercepts communication between two parties. ARP poisoning, SSL stripping.</div></div>
-  <div class="term"><div class="t">Replay Attack</div><div class="d">Captures valid authentication token and re-sends it later. Mitigated by timestamps/nonces.</div></div>
+  <div class="term"><div class="t">Replay Attack</div><div class="d">Captures valid authentication data (token, hash, credential) and retransmits it <strong>later to start a new session or authenticate</strong>. The attacker re-uses stolen proof of identity. Mitigated by timestamps, nonces (numbers used once), and session expiration.</div></div>
+  <div class="term"><div class="t">Session Hijacking</div><div class="d">Steals a session token from an <strong>already authenticated, active session</strong> and takes it over mid-stream. The user already logged in — the attacker inserts themselves into the live connection. Methods: cookie theft via XSS, sidejacking (sniffing unencrypted cookies), man-in-the-browser.</div></div>
   <div class="term"><div class="t">SQL Injection</div><div class="d">Inserting SQL commands into input fields to manipulate database. Use parameterized queries to prevent.</div></div>
   <div class="term"><div class="t">XSS (Cross-Site Scripting)</div><div class="d">Injecting malicious scripts into trusted websites viewed by other users.</div></div>
   <div class="term"><div class="t">CSRF</div><div class="d">Cross-Site Request Forgery — forces authenticated user to perform actions without consent.</div></div>
@@ -950,6 +965,11 @@ const studyData = [
   <div class="term"><div class="t">Directory Traversal</div><div class="d">Using ../ sequences to access files outside intended web directory.</div></div>
   <div class="term"><div class="t">Pass the Hash</div><div class="d">Using captured NTLM password hash to authenticate without knowing the plaintext password.</div></div>
   <div class="term"><div class="t">Credential Stuffing</div><div class="d">Using leaked username/password combos from one breach to attack other sites.</div></div>
+</div>
+<div class="alert-box"><strong>⚠ REPLAY vs SESSION HIJACKING — Easy to confuse on the exam:</strong><br><br>
+<strong>Replay Attack</strong> = attacker captured auth data and uses it to <em>log in</em> (before or instead of the real user). Think: replaying a recorded key to unlock a door.<br><br>
+<strong>Session Hijacking</strong> = user already logged in; attacker steals their active session token and <em>takes over the live session</em>. Think: swapping badges with someone already inside the building.<br><br>
+<em>Quick test:</em> Does the attacker use the stolen data to <strong>authenticate</strong>? → Replay. Does the attacker take over a session that is <strong>already active</strong>? → Session Hijacking.
 </div>
 <div class="tip-box"><strong>🎯 DNS Attacks:</strong> <em>DNS Poisoning</em> corrupts cache to redirect users. <em>DNS Hijacking</em> changes DNS records. <em>DNS Sinkhole</em> redirects malicious domains to controlled server (defensive).</div>
 </div>
@@ -1022,7 +1042,7 @@ const studyData = [
 </div>
 
 <div class="content-block">
-<h3>Wireless Security</h3>
+<h3>Wireless Security — Protocol Overview</h3>
 <div class="table-wrap"><table>
   <tr><th>Protocol</th><th>Encryption</th><th>Status</th><th>Notes</th></tr>
   <tr><td><strong>WEP</strong></td><td>RC4 (40-bit)</td><td>Broken/Deprecated</td><td>Crackable in minutes. NEVER use.</td></tr>
@@ -1030,11 +1050,34 @@ const studyData = [
   <tr><td><strong>WPA2</strong></td><td>AES-CCMP</td><td>Current standard</td><td>Strong but vulnerable to KRACK, PMKID attacks.</td></tr>
   <tr><td><strong>WPA3</strong></td><td>SAE (Dragonfly)</td><td>Recommended</td><td>Forward secrecy. Resistant to offline dictionary attacks.</td></tr>
 </table></div>
+
+<h3 style="margin-top:24px;">Personal vs Enterprise Mode — CRITICAL EXAM TOPIC</h3>
+<p>Both WPA2 and WPA3 come in two flavors. The exam will describe a scenario and expect you to identify which mode is in use. The key question is: <strong>how does each individual user authenticate?</strong></p>
 <div class="term-grid">
-  <div class="term"><div class="t">Evil Twin</div><div class="d">Rogue AP mimicking a legitimate SSID to capture credentials.</div></div>
-  <div class="term"><div class="t">Deauthentication Attack</div><div class="d">Forcing clients to disconnect from legitimate AP, then capturing reauthentication.</div></div>
-  <div class="term"><div class="t">WPS Attack</div><div class="d">WPS PIN can be brute-forced in hours. Disable WPS.</div></div>
-  <div class="term"><div class="t">802.1X / EAP</div><div class="d">Port-based authentication. Enterprise wireless auth using RADIUS server.</div></div>
+  <div class="term"><div class="t">WPA2-Personal (WPA2-PSK)</div><div class="d"><strong>Pre-Shared Key</strong> — one shared password for everyone. You type the same Wi-Fi password whether you are the CEO or an intern. No per-user identity. Used in homes and small offices. Easy to set up but if the password leaks, everyone is exposed.</div></div>
+  <div class="term"><div class="t">WPA2-Enterprise (WPA2-802.1X)</div><div class="d"><strong>Each user has individual credentials</strong> authenticated through a RADIUS server using 802.1X/EAP. No shared password. Revoking one user does not affect anyone else. Requires a RADIUS server (like Microsoft NPS). Standard for corporate and government environments.</div></div>
+  <div class="term"><div class="t">WPA3-Personal (WPA3-SAE)</div><div class="d"><strong>SAE (Simultaneous Authentication of Equals)</strong> replaces the old PSK handshake. Still uses a single passphrase, but SAE prevents offline dictionary attacks — an attacker who captures the handshake CANNOT brute-force the password offline. Much stronger than WPA2-Personal.</div></div>
+  <div class="term"><div class="t">WPA3-Enterprise</div><div class="d"><strong>Same 802.1X/RADIUS individual-user model as WPA2-Enterprise</strong> but with stronger mandatory encryption (AES-GCMP-256). Best option for high-security environments. Each user still authenticates with their own credentials.</div></div>
+</div>
+
+<div class="alert-box"><strong>⚠ THE ONE-LINE RULE:</strong> If the question mentions a <em>RADIUS server</em>, <em>802.1X</em>, or <em>individual user credentials</em> — it is <strong>Enterprise</strong>. If it mentions a <em>shared password / passphrase</em> or a <em>home / small office</em> — it is <strong>Personal</strong>.</div>
+
+<div class="table-wrap"><table>
+  <tr><th>Scenario in the Question</th><th>Correct Answer</th></tr>
+  <tr><td>Coffee shop Wi-Fi — one password on the menu board</td><td><strong>WPA2/WPA3-Personal (PSK)</strong></td></tr>
+  <tr><td>Corporate Wi-Fi requiring your domain username and password</td><td><strong>WPA2/WPA3-Enterprise (802.1X)</strong></td></tr>
+  <tr><td>Network authenticates users via a RADIUS server</td><td><strong>Enterprise</strong></td></tr>
+  <tr><td>Home router with a single Wi-Fi password</td><td><strong>Personal (PSK)</strong></td></tr>
+  <tr><td>Revoking one user does not affect other users</td><td><strong>Enterprise</strong></td></tr>
+</table></div>
+
+<div class="term-grid" style="margin-top:16px;">
+  <div class="term"><div class="t">802.1X</div><div class="d">Port-based Network Access Control. The standard framework that enforces authentication before granting network access. Used by both Enterprise wireless AND wired networks.</div></div>
+  <div class="term"><div class="t">EAP (Extensible Authentication Protocol)</div><div class="d">Authentication framework carried within 802.1X. Key variants: EAP-TLS (most secure — uses certificates on both ends), PEAP (wraps a password exchange inside a TLS tunnel), EAP-TTLS.</div></div>
+  <div class="term"><div class="t">RADIUS</div><div class="d">The backend server that validates 802.1X authentication. The AP passes credentials to RADIUS, which checks them against Active Directory. Ports 1812 (authentication) and 1813 (accounting).</div></div>
+  <div class="term"><div class="t">Evil Twin</div><div class="d">Rogue AP mimicking a legitimate SSID. Harder to exploit against Enterprise networks because credentials are validated server-side, not locally.</div></div>
+  <div class="term"><div class="t">Deauthentication Attack</div><div class="d">Forces clients off a legitimate AP hoping they reconnect to an evil twin. WPA3 adds management frame protection to mitigate this.</div></div>
+  <div class="term"><div class="t">WPS Attack</div><div class="d">WPS PIN can be brute-forced in hours. Always disable WPS on any network you manage.</div></div>
 </div>
 </div>
 
@@ -1044,9 +1087,17 @@ const studyData = [
   <div class="term"><div class="t">Site-to-Site VPN</div><div class="d">Permanent encrypted tunnel between two networks (office to datacenter). Always on.</div></div>
   <div class="term"><div class="t">Remote Access VPN</div><div class="d">Individual user connects to corporate network remotely. Client software required.</div></div>
   <div class="term"><div class="t">SSL/TLS VPN</div><div class="d">Uses web browser or thin client. Works through firewalls on port 443.</div></div>
-  <div class="term"><div class="t">IPSec</div><div class="d">Encrypts at Layer 3 (IP layer). Supports AH (integrity) and ESP (encryption + integrity).</div></div>
-  <div class="term"><div class="t">Split Tunnel</div><div class="d">VPN traffic goes through tunnel; internet traffic goes direct. More efficient but less secure.</div></div>
-  <div class="term"><div class="t">Full Tunnel</div><div class="d">ALL traffic goes through VPN. More secure but uses more bandwidth.</div></div>
+  <div class="term"><div class="t">IPSec — Tunnel Mode</div><div class="d">Encapsulates the <strong>entire original IP packet</strong> (header + payload) inside a brand new IP packet with a new header. The original packet is completely hidden. Used for <strong>gateway-to-gateway VPNs</strong> (site-to-site) and remote access VPNs. The most common IPSec deployment.</div></div>
+  <div class="term"><div class="t">IPSec — Transport Mode</div><div class="d">Encrypts only the <strong>payload (data)</strong> of the original packet — the original IP header remains intact and visible. Used for <strong>host-to-host</strong> communications within the same network. Less overhead than tunnel mode but exposes source/destination IPs.</div></div>
+  <div class="term"><div class="t">IPSec — AH (Authentication Header)</div><div class="d">Provides <strong>integrity and authentication only</strong> — no encryption. Proves the packet was not tampered with and came from a legitimate source. Does NOT provide confidentiality.</div></div>
+  <div class="term"><div class="t">IPSec — ESP (Encapsulating Security Payload)</div><div class="d">Provides <strong>encryption AND integrity</strong>. The most commonly used IPSec protocol. Confidentiality + authentication in one. Almost always preferred over AH alone.</div></div>
+  <div class="term"><div class="t">Split Tunnel</div><div class="d">Only corporate-bound traffic goes through the VPN tunnel. Internet traffic goes direct to the internet. More efficient but the org loses visibility into internet activity.</div></div>
+  <div class="term"><div class="t">Full Tunnel</div><div class="d">ALL traffic — corporate and internet — routes through the VPN. Org can inspect everything. More secure but uses more bandwidth and can slow browsing.</div></div>
+</div>
+<div class="alert-box"><strong>⚠ TUNNEL vs TRANSPORT MODE — The One-Line Test:</strong><br><br>
+<strong>Tunnel Mode</strong> = wraps the <em>entire original packet</em> in a new one. New IP header added. Original header hidden. → Used for <strong>VPNs between gateways</strong> (site-to-site, remote access).<br><br>
+<strong>Transport Mode</strong> = only encrypts the <em>payload</em>, original IP header stays exposed. → Used for <strong>host-to-host</strong> within a network.<br><br>
+<em>Memory trick:</em> Tunnel mode builds a tunnel around the whole package. Transport mode just secures the cargo inside an existing route.
 </div>
 </div>`,
 
@@ -1267,7 +1318,7 @@ const allQuestions = [
 {d:3, q:"An organization implements a policy where each employee can only access the specific systems and data required for their current job function and nothing more. This is:", o:["Separation of duties","Mandatory access control","Least privilege","Role rotation"], a:2, e:"Least privilege (also called principle of least privilege or PoLP) means granting only the minimum permissions necessary to perform job functions. This limits the blast radius if an account is compromised or an employee goes rogue."},
 {d:3, q:"Users authenticate to a central server that issues a ticket (TGT). They use this ticket to request service tickets for specific resources without re-entering credentials. This authentication protocol is:", o:["RADIUS","TACACS+","Kerberos","LDAP"], a:2, e:"Kerberos uses a ticket-granting system. The KDC (Key Distribution Center) issues a TGT after initial authentication. Users present the TGT to get service tickets for specific resources. Passwords never traverse the network. Used natively in Active Directory."},
 {d:3, q:"A company needs to prevent employees from emailing sensitive customer data to personal accounts. The BEST technology solution is:", o:["SIEM","DLP (Data Loss Prevention)","EDR","CASB"], a:1, e:"DLP monitors, detects, and prevents unauthorized transfer of sensitive data. It can block emails containing credit card numbers, SSNs, or classified data. It covers email, USB, printing, and web uploads. CASB handles cloud-specific DLP."},
-{d:3, q:"When conducting identity verification before issuing a certificate, the entity that verifies the requester's identity before forwarding to the CA is the:", o:["Root CA","Intermediate CA","RA (Registration Authority)","CRL"], a:2, e:"The Registration Authority (RA) handles the administrative front-end of certificate issuance — verifying the identity of the requestor. Once verified, the RA passes the request to the CA, which issues and signs the certificate. This offloads identity verification from the CA."},
+{d:0, q:"When conducting identity verification before issuing a certificate, the entity that verifies the requester's identity before forwarding to the CA is the:", o:["Root CA","Intermediate CA","RA (Registration Authority)","CRL"], a:2, e:"The Registration Authority (RA) handles the administrative front-end of certificate issuance — verifying the identity of the requestor. Once verified, the RA passes the request to the CA, which issues and signs the certificate. This offloads identity verification from the CA."},
 {d:3, q:"An organization discovers an attacker has had persistent access to their network for six months, has established multiple backdoors, and has been slowly exfiltrating data. After containment, what is the MOST critical consideration during recovery?", o:["Restoring the most recent backup immediately","Verifying all backdoors are removed before reconnecting systems","Notifying law enforcement first","Resuming normal operations as quickly as possible"], a:1, e:"With persistent/APT-style attacks, the attacker establishes multiple backdoors. If you restore and reconnect without identifying and eliminating ALL backdoors, you're still compromised. Thorough eradication before recovery is critical — speed matters less than completeness."},
 {d:3, q:"Which access control model is MOST appropriate for a military environment where access to classified information is based on security clearance levels?", o:["DAC (Discretionary)","RBAC (Role-Based)","ABAC (Attribute-Based)","MAC (Mandatory)"], a:3, e:"MAC (Mandatory Access Control) uses system-enforced labels (Top Secret, Secret, Confidential) that users cannot override. Access requires both the appropriate clearance AND the need-to-know. This is the model used in military and high-security government systems."},
 {d:3, q:"An organization discovers that sensitive data is being exfiltrated through DNS queries — small amounts of data encoded in seemingly legitimate DNS lookups. This technique is called:", o:["DNS poisoning","DNS sinkholing","DNS tunneling","DNS hijacking"], a:2, e:"DNS tunneling encodes data within DNS queries and responses to exfiltrate data or establish C2 communications. Because DNS is rarely blocked at the perimeter, it's a popular covert channel. Detection requires monitoring for abnormal DNS query patterns, long subdomain names, or unusual query volumes."},
@@ -1288,7 +1339,7 @@ const allQuestions = [
 {d:4, q:"A company is assessing a third-party vendor who will have access to customer data. Which document establishes the minimum security requirements the vendor must meet?", o:["MOU (Memorandum of Understanding)","NDA (Non-Disclosure Agreement)","SLA (Service Level Agreement)","Security requirements in the contract / vendor assessment"], a:3, e:"Contracts with security requirements (and vendor security assessments) establish mandatory security standards for third parties. An MOU outlines mutual expectations (may not be legally binding). An NDA covers confidentiality. An SLA defines service levels and uptime. None of these alone mandate specific security controls like a contract clause does."},
 {d:4, q:"An organization experiences a data breach affecting 100,000 EU citizens' personal data. Under GDPR, the organization must notify the appropriate supervisory authority within:", o:["24 hours","72 hours","7 days","30 days"], a:1, e:"GDPR Article 33 requires notification to the supervisory authority (Data Protection Authority) within 72 hours of becoming aware of a breach if it's likely to result in risks to individuals' rights. If individuals are at high risk, they must also be notified directly under Article 34."},
 {d:4, q:"What is the PRIMARY purpose of security awareness training?", o:["To replace technical controls with human vigilance","To reduce the human element as a vulnerability by educating users about security threats","To satisfy legal requirements only","To test employees by sending them phishing emails"], a:1, e:"Security awareness training addresses the human factor — often the weakest link. Well-trained users recognize phishing, handle sensitive data correctly, and report suspicious activity. While simulated phishing (option D) is a component, the primary goal is education and behavioral change."},
-{d:4, q:"An organization regularly rotates its cryptographic keys even when there is no known compromise. What security principle does this support?", o:["Key stretching","Cryptographic agility","Key rotation (limiting key exposure)","Perfect forward secrecy"], a:2, e:"Key rotation limits the amount of data encrypted with a single key, reducing the value of key compromise. Cryptographic agility is the ability to switch algorithms easily. Key stretching strengthens weak passwords. PFS generates unique session keys to protect past sessions."},
+{d:0, q:"An organization regularly rotates its cryptographic keys even when there is no known compromise. What security principle does this support?", o:["Key stretching","Cryptographic agility","Key rotation (limiting key exposure)","Perfect forward secrecy"], a:2, e:"Key rotation limits the amount of data encrypted with a single key, reducing the value of key compromise. Cryptographic agility is the ability to switch algorithms easily. Key stretching strengthens weak passwords. PFS generates unique session keys to protect past sessions."},
 {d:4, q:"Which concept describes the measurement of how long a system can operate before experiencing a failure?", o:["MTTR (Mean Time to Repair)","RPO (Recovery Point Objective)","MTBF (Mean Time Between Failures)","RTO (Recovery Time Objective)"], a:2, e:"MTBF measures the average operating time between failures — an indicator of reliability. Higher MTBF = more reliable. MTTR measures how long it takes to repair/restore after failure. Together, they help calculate system availability. Availability = MTBF / (MTBF + MTTR)."},
 {d:4, q:"A company stores the primary version of its DR plan in the same data center as production systems. If a disaster destroys the data center, the DR plan is also destroyed. This violates:", o:["Least privilege","The concept of geographic diversity / offsite storage","The separation of duties principle","Change management procedures"], a:1, e:"Critical documentation like the DR/BCP plan MUST be stored offsite (and ideally multiple locations, including cloud storage). Storing the DR plan in the same facility it's meant to help recover is a fundamental planning error — a disaster that takes down the DC also takes the recovery playbook."},
 {d:4, q:"A company purchases cyber insurance to cover the financial losses from a potential data breach. This is an example of which risk response?", o:["Risk avoidance","Risk mitigation","Risk transfer","Risk acceptance"], a:2, e:"Risk transfer shifts the financial impact of a risk to a third party (insurer). Cyber insurance doesn't reduce the likelihood of a breach — it just means someone else covers the losses. Other examples: outsourcing security to an MSSP, contractual liability transfer to vendors."},
