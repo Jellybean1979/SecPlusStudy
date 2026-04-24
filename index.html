@@ -2112,10 +2112,10 @@ async function updateCommitHash() {
     const data = await response.json();
     const hash = data.sha.substring(0, 7);
     document.getElementById("versionTag").textContent =
-      `by Gary Langley | ver 2 — build ${hash}`;
+      `by Gary Langley | ver 1.7 — build ${hash}`;
   } catch (err) {
     document.getElementById("versionTag").textContent =
-      "by Gary Langley | ver 2 — build unknown";
+      "by Gary Langley | ver 1.7 — build unknown";
   }
 }
 updateCommitHash();
