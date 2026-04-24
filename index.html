@@ -858,72 +858,111 @@
 #certDoc {
   background: #fff;
   color: #111;
-  max-width: 820px;
+  width: 100%;
+  max-width: 1050px;
   margin: 0 auto;
-  padding: 60px 70px;
+  padding: 36px 50px;
   font-family: 'Exo 2', sans-serif;
   box-shadow: 0 4px 40px rgba(0,0,0,0.4);
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
 }
 #certDoc::before {
   content: '';
   position: absolute;
   inset: 0;
-  border: 12px solid #0a1628;
+  border: 10px solid #0a1628;
   pointer-events: none;
+  z-index: 2;
 }
 #certDoc::after {
   content: '';
   position: absolute;
-  inset: 16px;
+  inset: 14px;
   border: 2px solid #00d4ff;
   pointer-events: none;
+  z-index: 2;
 }
-.cert-header { text-align: center; margin-bottom: 32px; }
-.cert-logo { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 6px; color: #00d4ff; margin-bottom: 12px; }
-.cert-title { font-size: 2rem; font-weight: 800; color: #0a1628; margin-bottom: 4px; letter-spacing: 2px; text-transform: uppercase; }
-.cert-subtitle { font-size: 0.85rem; color: #555; letter-spacing: 3px; text-transform: uppercase; }
-.cert-divider { height: 2px; background: linear-gradient(90deg, transparent, #00d4ff, transparent); margin: 24px 0; }
-.cert-body { text-align: center; margin-bottom: 28px; }
-.cert-presented { font-size: 0.78rem; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
-.cert-name { font-size: 1.2rem; font-weight: 700; color: #0a1628; }
-.cert-statement { font-size: 0.82rem; color: #444; line-height: 1.7; margin: 12px auto; max-width: 560px; }
-.cert-score-ring { text-align: center; margin: 16px 0; }
-.cert-big-score { font-size: 3.5rem; font-weight: 800; color: #0a1628; line-height: 1; }
-.cert-score-label { font-size: 0.7rem; letter-spacing: 3px; color: #666; text-transform: uppercase; }
+
+/* Header — full width centered */
+.cert-header { text-align: center; margin-bottom: 10px; }
+.cert-logo { font-family: 'Share Tech Mono', monospace; font-size: 0.65rem; letter-spacing: 6px; color: #00d4ff; margin-bottom: 6px; }
+.cert-title { font-size: 1.7rem; font-weight: 800; color: #0a1628; margin-bottom: 2px; letter-spacing: 2px; text-transform: uppercase; }
+.cert-subtitle { font-size: 0.72rem; color: #555; letter-spacing: 3px; text-transform: uppercase; }
+.cert-divider { height: 2px; background: linear-gradient(90deg, transparent, #00d4ff, transparent); margin: 10px 0; }
+
+/* Two-column body */
+.cert-columns {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 32px;
+  align-items: start;
+  margin-bottom: 16px;
+}
+
+/* Left column — score & identity */
+.cert-left { text-align: center; }
+.cert-presented { font-size: 0.65rem; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+.cert-name { font-size: 1.1rem; font-weight: 700; color: #0a1628; margin-bottom: 6px; min-height: 1.4em; }
+.cert-statement { font-size: 0.72rem; color: #444; line-height: 1.6; margin: 6px auto; }
+.cert-big-score { font-size: 3.8rem; font-weight: 800; line-height: 1; margin: 8px 0 0; }
+.cert-score-label { font-size: 0.6rem; letter-spacing: 2px; color: #666; text-transform: uppercase; margin-bottom: 6px; }
 .cert-pass-badge {
   display: inline-block;
   border: 2px solid;
-  font-size: 0.7rem;
-  letter-spacing: 4px;
-  padding: 5px 20px;
+  font-size: 0.6rem;
+  letter-spacing: 3px;
+  padding: 4px 14px;
   text-transform: uppercase;
-  margin: 8px 0 20px;
+  margin-top: 6px;
   font-weight: 700;
 }
-.cert-domains { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin: 20px 0; }
-.cert-domain-card { background: #f4f8ff; border: 1px solid #d0dff0; padding: 12px; text-align: center; }
-.cert-domain-name { font-size: 0.68rem; color: #444; font-weight: 600; margin-bottom: 6px; line-height: 1.3; }
+
+/* Right column — domain breakdown */
+.cert-right {}
+.cert-domains-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 3px;
+  color: #00d4ff;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #d0dff0;
+}
+.cert-domains { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.cert-domain-card { background: #f4f8ff; border: 1px solid #d0dff0; padding: 10px 8px; text-align: center; }
+.cert-domain-name { font-size: 0.58rem; color: #444; font-weight: 600; margin-bottom: 6px; line-height: 1.3; min-height: 2.6em; display: flex; align-items: center; justify-content: center; }
 .cert-domain-bar { height: 4px; background: #dde; margin-bottom: 5px; }
 .cert-domain-fill { height: 100%; }
-.cert-domain-pct { font-size: 0.8rem; font-weight: 700; color: #0a1628; }
-.cert-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 32px; border-top: 1px solid #ccc; padding-top: 20px; }
+.cert-domain-pct { font-size: 0.75rem; font-weight: 700; }
+
+/* Footer */
+.cert-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-top: 1px solid #ccc;
+  padding-top: 12px;
+  margin-top: 4px;
+}
 .cert-sig { text-align: center; }
-.cert-sig-line { width: 160px; height: 1px; background: #999; margin: 0 auto 6px; }
-.cert-sig-label { font-size: 0.65rem; color: #888; letter-spacing: 2px; text-transform: uppercase; }
-.cert-date { font-size: 0.68rem; color: #888; text-align: right; }
+.cert-sig-line { width: 140px; height: 1px; background: #999; margin: 0 auto 5px; }
+.cert-sig-label { font-size: 0.6rem; color: #888; letter-spacing: 2px; text-transform: uppercase; }
+.cert-date { font-size: 0.62rem; color: #888; text-align: right; line-height: 1.6; }
 .cert-watermark {
   position: absolute;
   top: 50%; left: 50%;
-  transform: translate(-50%,-50%) rotate(-35deg);
-  font-size: 7rem;
+  transform: translate(-50%,-50%) rotate(-30deg);
+  font-size: 9rem;
   font-weight: 900;
-  color: rgba(0,212,255,0.04);
+  color: rgba(0,212,255,0.03);
   white-space: nowrap;
   pointer-events: none;
   letter-spacing: 8px;
-  font-family: var(--mono);
+  font-family: 'Share Tech Mono', monospace;
+  z-index: 0;
 }
 
 /* ── CERT NAME INPUT ── */
@@ -2106,27 +2145,27 @@ function buildCertificate() {
   document.getElementById('certDoc').innerHTML = `
     <div class="cert-watermark">SEC+</div>
     <div class="cert-header">
-      <div class="cert-logo">COMPTIA SECURITY+ // SY0-701</div>
+      <div class="cert-logo">COMPTIA SECURITY+ // SY0-701 // PRACTICE EXAMINATION</div>
       <div class="cert-title">Certificate of Accomplishment</div>
       <div class="cert-subtitle">Practice Examination Results</div>
     </div>
     <div class="cert-divider"></div>
-    <div class="cert-body">
-      <div class="cert-presented">This certifies that</div>
-      <div class="cert-name">${candidateName}</div>
-      <div class="cert-statement">
-        has completed the Security+ SY0-701 practice examination covering all five exam domains
-        and achieved the following result:
-      </div>
-      <div class="cert-score-ring">
+    <div class="cert-columns">
+      <div class="cert-left">
+        <div class="cert-presented">This certifies that</div>
+        <div class="cert-name">${candidateName}</div>
+        <div class="cert-statement">has completed the Security+ SY0-701 practice examination covering all five domains and achieved the following result:</div>
         <div class="cert-big-score" style="color:${scoreColor}">${pct}%</div>
         <div class="cert-score-label">${correct} correct out of ${total} questions</div>
+        <div class="cert-pass-badge" style="${badgeStyle}">
+          ${pass ? '✓ Passing Score' : '✗ Keep Studying'}
+        </div>
       </div>
-      <div class="cert-pass-badge" style="${badgeStyle}">
-        ${pass ? '✓ Passing Score Achieved' : '✗ Keep Studying — You\'ve Got This'}
+      <div class="cert-right">
+        <div class="cert-domains-label">Domain Performance Breakdown</div>
+        <div class="cert-domains">${domainBreakdown}</div>
       </div>
     </div>
-    <div class="cert-domains">${domainBreakdown}</div>
     <div class="cert-footer">
       <div class="cert-sig">
         <div class="cert-sig-line"></div>
@@ -2137,9 +2176,9 @@ function buildCertificate() {
         <div class="cert-sig-label">Candidate Signature</div>
       </div>
       <div class="cert-date">
-        <div style="font-size:0.75rem;color:#333;font-weight:700;">Date Completed</div>
+        <div style="font-size:0.7rem;color:#333;font-weight:700;">Date Completed</div>
         <div>${dateStr}</div>
-        <div style="margin-top:8px;font-size:0.6rem;color:#aaa;">SEC+ Study Terminal — jellybean1979</div>
+        <div style="margin-top:6px;font-size:0.55rem;color:#bbb;letter-spacing:1px;">SEC+ STUDY TERMINAL // JELLYBEAN1979</div>
       </div>
     </div>
   `;
@@ -2163,10 +2202,10 @@ async function updateCommitHash() {
     const data = await response.json();
     const hash = data.sha.substring(0, 7);
     document.getElementById("versionTag").textContent =
-      `by Gary Langley | ver 1.9 — build ${hash}`;
+      `by Gary Langley | ver 1.10 — build ${hash}`;
   } catch (err) {
     document.getElementById("versionTag").textContent =
-      "by Gary Langley | ver 1.9 — build unknown";
+      "by Gary Langley | ver 1.10 — build unknown";
   }
 }
 updateCommitHash();
