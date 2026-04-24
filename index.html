@@ -814,6 +814,12 @@
 <!-- ════════════════════════════ CERTIFICATE ════════════════════════════ -->
 <div id="screen-cert" class="screen">
   <div class="wrap">
+    <div class="cert-name-entry">
+      <label class="cert-name-label">YOUR NAME ON CERTIFICATE</label>
+      <input type="text" id="certNameInput" class="cert-name-input"
+        placeholder="Type your full name…"
+        oninput="updateCertName(this.value)" />
+    </div>
     <div class="btn-row" style="margin-bottom:24px;">
       <button class="btn btn-primary" onclick="window.print()">🖨 PRINT CERTIFICATE</button>
       <button class="btn btn-ghost" onclick="showScreen('results')">← BACK TO RESULTS</button>
@@ -920,15 +926,51 @@
   font-family: var(--mono);
 }
 
+/* ── CERT NAME INPUT ── */
+.cert-name-entry {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--cyan);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.cert-name-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  color: var(--cyan);
+  white-space: nowrap;
+}
+.cert-name-input {
+  flex: 1;
+  min-width: 200px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.cert-name-input:focus { border-color: var(--cyan); }
+.cert-name-input::placeholder { color: var(--muted); font-weight: 400; font-size: 0.85rem; }
+
 /* ── PRINT ── */
 @media print {
   body > *:not(#screen-cert) { display: none !important; }
   #screen-cert { display: block !important; padding: 0 !important; }
   #screen-cert .wrap > .btn-row { display: none !important; }
-  #certDoc { box-shadow: none; margin: 0; padding: 50px 60px; }
+  #screen-cert .cert-name-entry { display: none !important; }
+  #certDoc { box-shadow: none; margin: 0; padding: 40px 60px; }
   #topNav { display: none !important; }
   body::before, body::after { display: none !important; }
-  @page { margin: 0.4in; }
+  @page { size: landscape; margin: 0.3in; }
 }
 </style>
 
@@ -2041,6 +2083,8 @@ function buildCertificate() {
   const pass = pct >= 75;
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
+  const nameInput = document.getElementById('certNameInput');
+  const candidateName = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : 'Candidate';
 
   const domainBreakdown = DOMAINS.map((name,d) => {
     const dqs = quizResults.filter(r => r.q.d === d);
@@ -2069,7 +2113,7 @@ function buildCertificate() {
     <div class="cert-divider"></div>
     <div class="cert-body">
       <div class="cert-presented">This certifies that</div>
-      <div class="cert-name">Candidate</div>
+      <div class="cert-name">${candidateName}</div>
       <div class="cert-statement">
         has completed the Security+ SY0-701 practice examination covering all five exam domains
         and achieved the following result:
@@ -2101,6 +2145,13 @@ function buildCertificate() {
   `;
 }
 
+function updateCertName(val) {
+  const el = document.getElementById('certDoc');
+  if (!el || !el.innerHTML) return;
+  const nameEl = el.querySelector('.cert-name');
+  if (nameEl) nameEl.textContent = val.trim() || 'Candidate';
+}
+
 // ── Init ──────────────────────────────────────────────────────────
 loadStudy(0);
 
@@ -2112,10 +2163,10 @@ async function updateCommitHash() {
     const data = await response.json();
     const hash = data.sha.substring(0, 7);
     document.getElementById("versionTag").textContent =
-      `by Gary Langley | ver 1.7 — build ${hash}`;
+      `by Gary Langley | ver 1.9 — build ${hash}`;
   } catch (err) {
     document.getElementById("versionTag").textContent =
-      "by Gary Langley | ver 1.7 — build unknown";
+      "by Gary Langley | ver 1.9 — build unknown";
   }
 }
 updateCommitHash();
